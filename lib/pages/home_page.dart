@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqf_lite/db/db_admin.dart';
+import 'package:flutter_sqf_lite/models/book_model.dart';
 import 'package:flutter_sqf_lite/ui/utils/colors.dart';
+import 'package:flutter_sqf_lite/ui/widgets/item_book_widget.dart';
+import 'package:flutter_sqf_lite/ui/widgets/item_slider_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,20 +14,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List data = [];
+  List<BookModel> books = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    fetchBook();
+    getBooks();
   }
 
-  Future<void> fetchBook() async {
-    List newData = await DBAdmin.db.getBooks();
-    setState(() {
-      data = newData;
-    });
+  Future<void> getBooks() async {
+    List<BookModel> dataFetch = await DBAdmin.db.getBooks();
+    books = dataFetch;
+    setState(() {});
   }
 
   @override
@@ -155,74 +157,48 @@ class _HomePageState extends State<HomePage> {
                   physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: [
-                      ItemSliderWidget(),
-                      ItemSliderWidget(),
-                      ItemSliderWidget(),
-                      ItemSliderWidget(),
-                    ],
+                    children: List.generate(books.length, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ItemSliderWidget(
+                              author: books[index].author,
+                              description: books[index].description,
+                              image: books[index].image,
+                              title: books[index].title,
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ),
-                )
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                Text(
+                  "Best Seller",
+                  style:
+                      GoogleFonts.poppins(fontSize: 14.0, color: Colors.white),
+                ),
+                Column(
+                  children: books
+                      .map<Widget>(
+                        (e) => ItemBookWidget(
+                          author: e.author,
+                          description: e.description,
+                          image: e.image,
+                          title: e.title,
+                        ),
+                      )
+                      .toList(),
+                ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class ItemSliderWidget extends StatelessWidget {
-  const ItemSliderWidget({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 170,
-      margin: const EdgeInsets.only(right: 14.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              "https://i5.walmartimages.com/seo/The-Hobbit-Or-There-and-Back-Again-Paperback-9780547928227_6f06c85b-265f-415c-bdab-a8e8e5d01270.43f6ef709ba2fbe16d61f0cb9ec94b75.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF",
-              height: 250,
-              width: 170,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(
-            height: 6,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "JRR Tolkien",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.0,
-                    color: Colors.white70,
-                  ),
-                ),
-                Text(
-                  "El Hobbit - Final Edition",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.0,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
