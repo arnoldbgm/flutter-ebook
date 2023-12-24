@@ -1,12 +1,13 @@
 class BookModel {
-  int id;
+  int? id;
   String title;
   String author;
   String image;
   String description;
 
   BookModel(
-      {required this.id,
+      {
+      this.id,
       required this.title,
       required this.author,
       required this.image,

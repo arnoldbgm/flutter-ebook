@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sqf_lite/db/db_admin.dart';
 import 'package:flutter_sqf_lite/models/book_model.dart';
 import 'package:flutter_sqf_lite/ui/utils/colors.dart';
+import 'package:flutter_sqf_lite/ui/widgets/input_text_widget.dart';
 import 'package:flutter_sqf_lite/ui/widgets/item_book_widget.dart';
 import 'package:flutter_sqf_lite/ui/widgets/item_slider_widget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,6 +16,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<BookModel> books = [];
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _authorController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _imageController = TextEditingController();
 
   @override
   void initState() {
@@ -41,54 +45,109 @@ class _HomePageState extends State<HomePage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Agregar libro",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
+            content: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Agregar libro",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 7.0,
-                ),
-                Container(
-                  width: 80,
-                  height: 2.7,
-                  decoration: BoxDecoration(
-                      color: kSecondaryColor,
-                      borderRadius: BorderRadius.circular(15)),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextField(
-                  style: GoogleFonts.poppins(color: Colors.white),
-                  cursorColor: kSecondaryColor,
-                  decoration: InputDecoration(
-                      hintText: "Titulo",
-                      hintStyle: GoogleFonts.poppins(
-                        color: Colors.white54,
-                        fontSize: 13,
+                  const SizedBox(
+                    height: 7.0,
+                  ),
+                  Container(
+                    width: 80,
+                    height: 2.7,
+                    decoration: BoxDecoration(
+                        color: kSecondaryColor,
+                        borderRadius: BorderRadius.circular(15)),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  InputTextFullWidget(
+                    controller: _titleController,
+                    hintText: "Titulo",
+                    icon: "bx-bookmark",
+                  ),
+                  InputTextFullWidget(
+                    controller: _authorController,
+                    hintText: "Autor",
+                    icon: "bx-user",
+                  ),
+                  InputTextFullWidget(
+                    controller: _descriptionController,
+                    hintText: "Description",
+                    icon: "bx-list-ul",
+                    maxLines: 3,
+                  ),
+                  InputTextFullWidget(
+                    controller: _imageController,
+                    hintText: "Portada",
+                    icon: "bx-image-alt",
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "Cancelar",
+                          style: GoogleFonts.poppins(color: Colors.white60),
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: kSecondaryColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        onPressed: () {
+                          BookModel model = BookModel(
+                            title: _titleController.text,
+                            author: _authorController.text,
+                            description: _descriptionController.text,
+                            image: _imageController.text,
+                          );
+                          DBAdmin.db.insertBook(model).then((value) {
+                            if (value > 0) {
+                              getBooks();
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                 const SnackBar(
+                                  backgroundColor: const Color(0xff06d6a0),
+                                  content: Expanded(
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.check),
+                                        const SizedBox(
+                                          width: 15,
+                                        ),
+                                        Text(
+                                          "Libro agregado correctamente",
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          });
+                        },
+                        child: Text(
+                          "Aceptar",
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Color(0xff2A2D37),
-                      prefixIcon: SvgPicture.asset(
-                        'assets/images/bx-bookmark.svg',
-                        color: Colors.white54,
-                        fit: BoxFit.scaleDown,
-                      )),
-                )
-              ],
+                    ],
+                  )
+                ],
+              ),
             ),
           );
         });

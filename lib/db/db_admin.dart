@@ -37,25 +37,22 @@ class DBAdmin {
   Future<List<BookModel>> getBooks() async {
     List<BookModel> books = [];
     final Database? db = await getChechkDataBase();
-    List response = await db!.query("BOOK");
+    List response = await db!.query("BOOK", orderBy: "id DESC");
     books = response.map<BookModel>((e) => BookModel.fromJson(e)).toList();
     return books;
   }
 
   // Create - Insertar data dentro de la tabla
-  insertBookRaw() async {
+  Future<int> insertBookRaw(BookModel model) async {
     final Database? db = await getChechkDataBase();
-    db!.rawInsert(
-        "INSERT INTO BOOK (title, author, description, image) VALUES ('The Hobbit', 'JRR Tolkien', 'Lorem ipsum', 'http://...')");
+    int resp = await db!.rawInsert(
+        "INSERT INTO BOOK (title, author, description, image) VALUES ('${model.title}', '${model.author}', '${model.description}', '${model.image}')");
+    return resp;
   }
 
-  insertBook() async {
+  Future<int> insertBook(BookModel model) async {
     final Database? db = await getChechkDataBase();
-    db!.insert("BOOK", {
-      "title": "The Silmarillion",
-      "author": "JRR Tolkien",
-      "description": "Lorem ipsum 2",
-      "image": "https://www..."
-    });
+    int res = await db!.insert("BOOK", model.toJson());
+    return res;
   }
 }
