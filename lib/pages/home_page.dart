@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqf_lite/db/db_admin.dart';
 import 'package:flutter_sqf_lite/models/book_model.dart';
+import 'package:flutter_sqf_lite/pages/detail_page.dart';
 import 'package:flutter_sqf_lite/ui/utils/colors.dart';
 import 'package:flutter_sqf_lite/ui/widgets/input_text_widget.dart';
 import 'package:flutter_sqf_lite/ui/widgets/item_book_widget.dart';
@@ -231,9 +232,12 @@ class _HomePageState extends State<HomePage> {
                       child: Text("Cancelar")),
                   ElevatedButton(
                     onPressed: () {
-                      DBAdmin.db.deleteBook(id);
-                      getBooks();
-                      Navigator.pop(context);
+                      DBAdmin.db.deleteBook(id).then((value) {
+                        if (value >= 0) {
+                          getBooks();
+                          Navigator.pop(context);
+                        }
+                      });
                     },
                     child: Text("Aceptar"),
                   )
@@ -391,6 +395,14 @@ class _HomePageState extends State<HomePage> {
                     children: books
                         .map<Widget>(
                           (BookModel e) => GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(book: e),
+                                ),
+                              );
+                            },
                             onLongPress: () {
                               idBook = e.id!;
                               _titleController.text = e.title;
@@ -419,6 +431,14 @@ class _HomePageState extends State<HomePage> {
                   children: books
                       .map<Widget>(
                         (BookModel e) => GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPage(book: e),
+                              ),
+                            );
+                          },
                           onLongPress: () {
                             idBook = e.id!;
                             _titleController.text = e.title;
